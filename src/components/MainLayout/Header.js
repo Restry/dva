@@ -1,10 +1,17 @@
 import React from 'react';
-import { Menu, Icon,Select } from 'antd';
+import { Menu, Icon,Select,Radio } from 'antd';
 import { Link } from 'dva/router';
 import { FormattedMessage } from 'react-intl';
+import { connect } from 'dva';
 const Option = Select.Option;
 
-function Header({ location }) {
+function Header({ dispatch,location }) {
+  function switchLocaleHandler(e) {
+    dispatch({
+      type: 'app/switchLocale',
+      payload: e.target.value,
+    });
+  }
   return (
     <Menu
       selectedKeys={[location.pathname]}
@@ -25,7 +32,13 @@ function Header({ location }) {
       </Menu.Item>
       <Menu.Item key="/antd">
         
-        
+        <div className="change-locale">
+          <span style={{ marginRight: 16 }}>Change locale of components: </span>
+          <Radio.Group defaultValue="zh_CN" onChange={switchLocaleHandler}>
+            <Radio.Button key="en_US" value="en_US">English</Radio.Button>
+            <Radio.Button key="zh-CN" value="zh_CN">中文</Radio.Button>
+          </Radio.Group>
+        </div>
 
         
       </Menu.Item>
@@ -33,4 +46,4 @@ function Header({ location }) {
   );
 }
 
-export default Header;
+export default connect()( Header);

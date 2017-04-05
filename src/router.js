@@ -1,7 +1,11 @@
 import React from 'react';
-import { Router } from 'dva/router';
+import {
+  Router
+} from 'dva/router';
+import App from './routes/app'
 
 const cached = {};
+
 function registerModel(app, model) {
   if (!cached[model.namespace]) {
     app.model(model);
@@ -9,39 +13,46 @@ function registerModel(app, model) {
   }
 }
 
-function RouterConfig({ history, app }) {
-  const routes = [
-    {
+function RouterConfig({history,app}) {
+  const routes = [{
       path: '/',
-      name: 'IndexPage',
-      getComponent(nextState, cb) {
-        require.ensure([], (require) => {
-          cb(null, require('./routes/IndexPage'));
-        });
+      component: App,
+      getIndexRoute(nextState, cb) {
+        require.ensure([], require => {
+          cb(null, {
+            component: require('./routes/IndexPage')
+          })
+        }, 'dashboard')
       },
-    },
-    {
-      path: '/users',
-      name: 'UsersPage',
-      getComponent(nextState, cb) {
-        require.ensure([], (require) => {
-          registerModel(app, require('./models/users'));
-          cb(null, require('./routes/Users'));
-        });
-      },
-    },
-    {
-      path: '/sample',
-      name: 'SamplePage',
-      getComponent(nextState, cb) {
-        require.ensure([], (require) => {
-          cb(null, require('./routes/LocalSample'));
-        });
-      },
-    },
-  ];
+      childRoutes: [{
+        path: '/',
+        name: 'IndexPage',
+        getComponent(nextState, cb) {
+          require.ensure([], (require) => {
+            cb(null, require('./routes/IndexPage'));
+          });
+        },
+      }, {
+        path: '/users',
+        name: 'UsersPage',
+        getComponent(nextState, cb) {
+          require.ensure([], (require) => {
+            registerModel(app, require('./models/users'));
+            cb(null, require('./routes/Users'));
+          });
+        },
+      }, {
+        path: '/sample',
+        name: 'SamplePage',
+        getComponent(nextState, cb) {
+          require.ensure([], (require) => {
+            cb(null, require('./routes/LocalSample'));
+          });
+        },
+      }, ]
+    }]
 
-  return <Router history={history} routes={routes} />;
-}
+    return <Router history = { history } routes = {routes} />;
+  }
 
-export default RouterConfig;
+  export default RouterConfig;
